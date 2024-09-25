@@ -5,15 +5,23 @@
 ```shell
 go get github.com/shenjinti/dtmfdecoder
 ```
+## API
+```go
+type DTMFDecoder struct {
+    // The minimum duration of a DTMF tone in seconds
+    PressInterval time.Duration // default 200ms
+}
+func NewDTMFDecoder(pressInterval float64, sampleRate float64) *DTMFDecoder
+```
 
 ### Example 
 
 ```go
-decoder := dtmfdecoder.NewDTMFDecoder(energyThreshold, 8000)
+decoder := dtmfdecoder.NewDTMFDecoder(0.32, 8000)
 f, _ := os.Open("testdata/123456654321_8k_s16le.raw")
 decoded := ""
 for {
-    data := make([]byte, 320)
+    data := make([]byte, 320) // 320 bytes = 160 samples = 20ms
     n, err := f.Read(data)
     if n == 0 || err != nil {
         break

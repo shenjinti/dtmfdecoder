@@ -12,6 +12,7 @@ var frequencyTable = map[int]map[int]rune{
 	941: {1209: '*', 1336: '0', 477: '#', 1633: 'D'},
 }
 
+// DTMFDecoder is a DTMF decoder that uses Goertzel algorithm to detect DTMF tones.
 type DTMFDecoder struct {
 	energyThreshold float64
 	sampleRate      int
@@ -21,9 +22,23 @@ type DTMFDecoder struct {
 	lastKey         rune
 	lastDuration    time.Duration
 	goertzel        *Goertzel
-	PressInterval   time.Duration
+
+	// The minimum duration of a DTMF tone in seconds
+	// before a new tone can be detected. Default is 200ms.
+	PressInterval time.Duration
 }
 
+// NewDTMFDecoder creates a new DTMF decoder with the given energy threshold and sample rate.
+//
+// The energy threshold is used to determine if a frequency is present in the signal, a value between 0 and 1. Default is `0.032`
+// The sample rate is the number of samples per second. 8000, 16000, 44100 are common values.
+//
+// The decoder can be used to decode DTMF tones from a stream of samples
+// return the detected DTMF tone as a string and a boolean indicating if a tone was detected.
+//
+// an empty string and false if no tone was detected.
+//
+// an empty string and false if the same tone is detected within the press interval.
 func NewDTMFDecoder(energyThreshold float64, sampleRate int) *DTMFDecoder {
 	lowFrequencies := []int{697, 770, 852, 941}
 	highFrequencies := []int{1209, 1336, 1477, 1633}
